@@ -13,24 +13,6 @@ pipeline {
             checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/sonulodha/appservice']]])
             }
         }
-       
-   stage ('Build image') {
-        steps {        
-        script {
-            dockerImage = docker.build registryName
-                }
-            }
-        }
-    // Uploading Docker images into ACR
-    stage('Upload Image to ACR') {
-     steps{   
-         script {
-            docker.withRegistry( "http://${registryUrl}", registryCredential ) {
-            dockerImage.push()
-            }
-        }
-      }
-    }
       
     }
  }
