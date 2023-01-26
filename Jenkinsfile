@@ -19,6 +19,15 @@ pipeline {
                      }      
                 }
             }
-      
+   // Uploading Docker images into ACR
+    stage('Upload Image to ACR') {
+     steps{   
+         script {
+            docker.withRegistry( "http://${registryUrl}", registryCredential ) {
+            dockerImage.push()
+            }
         }
- }
+      }
+    }
+    }
+}
