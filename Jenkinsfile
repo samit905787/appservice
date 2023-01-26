@@ -15,7 +15,7 @@ pipeline {
         stage('build docker images') {
             steps {
             sh 'id'
-            sh '/opt/homebrew/bin/docker buildx build --platform linux/amd64 -t bhashini.azurecr.io/bhashini:v1 '
+            sh '/opt/homebrew/bin/docker buildx build --platform linux/amd64 -t bhashini.azurecr.io/bhashini:v1 . '
             }
             }
       
