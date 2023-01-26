@@ -3,7 +3,7 @@ pipeline {
         environment {
         registryName = "bhashini/bhashini"
         registryCredential = 'ACR'
-        dockerImage = ''
+        dockerImage = 'vc'
         registryUrl = 'bhashini.azurecr.io'
     }
     
@@ -32,12 +32,5 @@ pipeline {
       }
     }
       
-    stage('Docker ps') {
-     steps{
-         script {
-                sh 'docker ps'
-            }
-      }
-    }
     }
  }
