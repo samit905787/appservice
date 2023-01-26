@@ -6,7 +6,6 @@ pipeline {
         dockerImage = 'vc'
         registryUrl = 'bhashini.azurecr.io'
     }
-    
     stages {
         stage ('checkout') {
             steps {
@@ -17,7 +16,7 @@ pipeline {
             steps {        
                 script {
                     dockerImage = docker.build registryName
-                     }
+                     }      
                 }
             }
       
