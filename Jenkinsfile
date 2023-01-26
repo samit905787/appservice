@@ -12,11 +12,12 @@ pipeline {
             checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/sonulodha/appservice']]])
             }
             }
-        stage('build docker images') {
-            steps {
-            sh 'id'
-            sh '/opt/homebrew/bin/docker buildx build --platform linux/amd64 -t bhashini.azurecr.io/bhashini:v1 . '
-            }
+        stage ('build image') {
+            steps {        
+                script {
+                    dockerImage = docker.build registryName
+                     }      
+                }
             }
       
         }
