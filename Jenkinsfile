@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage ('checkout') {
             steps {
-            checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/sonulodha/appservice']]])
+            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'github.com/sonulodha/appservice']]])
             }
         }
        
