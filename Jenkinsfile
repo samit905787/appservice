@@ -32,7 +32,8 @@ pipeline {
     
     stage('deploy to appservice') {
         steps {
-            withCredentials([string(credentialsId: 'app-id', variable: 'username', 'app-id-pass', variable: 'password')]) {
+            withCredentials([string(credentialsId: 'app-id', variable: 'username')])
+            withCredentials([string(credentialsId: 'app-id-pass', variable: 'password')]) {
             sh """
                 /var/lib/jenkins/.local/bin/az login --service-principal -u ${username} -p ${password} --tenant linux
                 /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group app-service  --docker-custom-image-name=bhashini.azurecr.io/bhashini:${env.BUILD_ID}
