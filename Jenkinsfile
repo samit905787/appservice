@@ -1,11 +1,10 @@
 pipeline {
      agent any
         environment {
-        registryName = "bhashini/bhashini"
+        registryName = "bhashini"
         registryCredential = 'ACR'
         dockerImage = 'vc'
         registryUrl = 'bhashini.azurecr.io'
-        azure-sa = 'jenkins-secrets'
     }
     stages {
         stage ('checkout') {
@@ -16,12 +15,12 @@ pipeline {
         stage ('build image') {
             steps {        
                 script {
-                    dockerImage = docker.build registryName
+                    dockerImage = docker.build("${registryName}:${env.BUILD_ID}")
                      }      
                 }
             }
    // Uploading Docker images into ACR
-    stage('Upload Image to ACR') {
+    stage('push to ACR') {
      steps{   
          script {
             docker.withRegistry( "http://${registryUrl}", registryCredential ) {
@@ -30,18 +29,20 @@ pipeline {
         }
       }
     }
-
-stage('Deploy Image to ACR') {
-     steps{   
-        script {
-        azureWebAppPublish azureCredentialsId: 'azure-sa', publishType: 'docker',
-                   resourceGroup: 'app-service', appName: 'dev-bhashini',
-                   dockerImageName: 'bhashini/bhashini', dockerImageTag: '2',
-                   dockerRegistryEndpoint: [credentialsId: 'ACR', url: "registryUrl"]
-
+    
+    stage('deploy to appservice') {
+        steps {
+            withCredentials([string(credentialsId: 'app-id', variable: 'app-id')])
+            withCredentials([string(credentialsId: 'app-id-pass', variable: 'app-id-pass')])
+            withCredentials([string(credentialsId: 'tenant-id', variable: 'tenant-id')]) {
+            sh """
+                /var/lib/jenkins/.local/bin/az login --service-principal -u ${app-id} -p ${app-id-pas} --tenant ${tenant-id}
+                /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group app-service  --docker-custom-image-name=bhashini.azurecr.io/bhashini:${env.BUILD_ID}
+                """
+            }
         }
-     }
-}
-
     }
+    
+}
+        
 }
