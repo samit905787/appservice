@@ -33,9 +33,9 @@ pipeline {
     stage('deploy to appservice') {
         steps {
             withCredentials([
-            usernameaz(credentialsId: 'app-id', variable: 'username'),
-            passwordaz(credentialsId: 'tenant-id', variable: 'tenant'),
-            tenantaz(credentialsId: 'app-id-pass', variable: 'password')
+            string(credentialsId: 'app-id', variable: 'username'),
+            string(credentialsId: 'tenant-id', variable: 'tenant'),
+            string(credentialsId: 'app-id-pass', variable: 'password')
             ]) {
             sh """
                 /var/lib/jenkins/.local/bin/az login --service-principal -u ${username} -p ${password} --tenant ${tenant}
