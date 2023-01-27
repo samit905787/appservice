@@ -5,6 +5,7 @@ pipeline {
         registryCredential = 'ACR'
         dockerImage = 'vc'
         registryUrl = 'bhashini.azurecr.io'
+        azure-sa = 'jenkins-secrets'
     }
     stages {
         stage ('checkout') {
@@ -29,5 +30,18 @@ pipeline {
         }
       }
     }
+
+stage('Deploy Image to ACR') {
+     steps{   
+        script {
+        azureWebAppPublish azureCredentialsId: 'azure-sa', publishType: 'docker',
+                   resourceGroup: 'app-service', appName: 'dev-bhashini',
+                   dockerImageName: 'bhashini/bhashini', dockerImageTag: '2',
+                   dockerRegistryEndpoint: [credentialsId: 'ACR', url: "registryUrl"]
+
+        }
+     }
+}
+
     }
 }
