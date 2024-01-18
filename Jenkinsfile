@@ -27,8 +27,8 @@ pipeline {
             steps{
                 withCredentials([usernameColonPassword(credentialsId: 'DOCKER_REGISTRY_CREDS', variable: 'dockerHub'), string(credentialsId: 'dockerhubpass', variable: 'dockerHubPass'), string(credentialsId: 'dockerHubUser', variable: 'dockerHubUser')]) {
                 sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker tag react_django_demo_app:latest ${env.dockerHubUser}/react_django_demo_app:latest"
-                sh "docker push ${env.dockerHubUser}/react_django_demo_app:latest"
+                sh "docker tag react_django_demo_app:latest ${env.dockerHubUser}/testingimage"
+                sh "docker push ${env.dockerHubUser}/testingimage"
                 echo 'image push ho gaya'
                 }
             }
