@@ -3,7 +3,9 @@ pipeline {
         environment {
         registryName = "htmlimage"
         registryCredential = 'ACR'
-        dockerImage = 'vc'
+        dockerImage = 'testingimage'
+        webAppResourceGroup = 'Rg-Amit'
+        webAppName = htmlcontainer   
         registryUrl = 'htmlimage.azurecr.io'
     }
     stages {
@@ -39,7 +41,7 @@ pipeline {
             ]) {
             sh """
                 /var/lib/jenkins/.local/bin/az login --service-principal -u ${username} -p ${password} --tenant ${tenant}
-                /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group app-service  --docker-custom-image-name=htmlimage.azurecr.io/testingimage:${env.BUILD_ID}
+                /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group Rg-Amit  --docker-custom-image-name=htmlimage.azurecr.io/testingimage:${env.BUILD_ID}
                 """
             }
         }
