@@ -1,5 +1,7 @@
 pipeline {
-     agent any
+     agent {
+        label 'webserver'
+    } 
         environment {
         registryName = "htmlimage"
         registryCredential = 'ACR'
@@ -11,7 +13,7 @@ pipeline {
     stages {
         stage ('checkout') {
             steps {
-            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/samit905787/appservice.git']]])
+            checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/samit905787/appservice.git']])
             }
             }
         stage ('build image') {
