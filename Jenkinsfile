@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'webserver'
+    }  
 
     environment {
         registryName = "samit905787"
