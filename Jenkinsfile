@@ -5,7 +5,7 @@ pipeline {
         registryCredential = 'ACR'
         dockerImage = 'testingimage'
         webAppResourceGroup = 'Rg-Amit'
-        webAppName = htmlcontainer   
+        webAppName = 'htmlcontainer'   
         registryUrl = 'htmlimage.azurecr.io'
     }
     stages {
