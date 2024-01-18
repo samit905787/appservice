@@ -7,7 +7,7 @@ pipeline {
         dockerImage = 'testingimage'
         webAppResourceGroup = 'Rg-Amit'
         webAppName = 'dockerhtmlcontainer'   
-        registryUrl = 'htmlimage.azurecr.io'
+        registryUrl = 'samit905787'
     }
 
     stages {
