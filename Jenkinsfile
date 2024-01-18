@@ -1,54 +1,61 @@
 pipeline {
-     agent {
-        label 'webserver'
-    } 
-        environment {
-        registryName = "htmlimage"
-        registryCredential = 'ACR'
-        dockerImage = 'testingimage'
-        webAppResourceGroup = 'Rg-Amit'
-        webAppName = 'htmlcontainer'   
-        registryUrl = 'htmlimage.azurecr.io'
+    agent any
+
+    environment {
+        registryName = "testingimage"
+        dockerHubRegistry = "docker.io"
+        dockerHubRepo = "samit905787/testingimage"
+        webAppName = "dockerhtmlcontainer"
+        resourceGroup = "Rg-Amit"
+        azureCredentials = 'Azure Service Principal'
     }
+
     stages {
-        stage ('checkout') {
+        stage('Checkout') {
             steps {
-            checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/samit905787/appservice.git']])
+                checkout scm
             }
-            }
-        stage ('build image') {
-            steps {        
+        }
+
+        stage('Build Docker image') {
+            steps {
                 script {
-                    dockerImage = docker.build("${registryName}:${env.BUILD_ID}")
-                     }      
-                }
-            }
-   stage("push"){
-            steps{
-                withCredentials([usernameColonPassword(credentialsId: 'DOCKER_REGISTRY_CREDS', variable: 'dockerHub'), string(credentialsId: 'dockerhubpass', variable: 'dockerHubPass'), string(credentialsId: 'dockerHubUser', variable: 'dockerHubUser')]) {
-                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
-                sh "docker tag testingimage ${env.dockerHubUser}/testingimage"
-                sh "docker push ${env.dockerHubUser}/testingimage"
-                echo 'image push ho gaya'
+                    dockerImage = docker.build(registryName)
                 }
             }
         }
-    
-    stage('deploy to appservice') {
-        steps {
-            withCredentials([
-            string(credentialsId: 'app-id', variable: 'username'),
-            string(credentialsId: 'tenant-id', variable: 'tenant'),
-            string(credentialsId: 'app-id-pass', variable: 'password')
-            ]) {
-            sh """
-                /var/lib/jenkins/.local/bin/az login --service-principal -u ${username} -p ${password} --tenant ${tenant}
-                /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group Rg-Amit  --docker-custom-image-name=htmlimage.azurecr.io/testingimage:${env.BUILD_ID}
-                """
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'DOCKER_REGISTRY_CREDS', usernameVariable: 'dockerHubUser', passwordVariable: 'dockerHubPass')]) {
+                        docker.withRegistry("${dockerHubRegistry}", "${dockerHubRepo}", "${dockerHubUser}", "${dockerHubPass}") {
+                            dockerImage.push()
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Azure App Service') {
+            steps {
+                script {
+                    withCredentials([azureServicePrincipal(credentialsId: "${azureCredentials}", tenantId: 'your-tenant-id', clientId: 'your-client-id', secret: 'your-client-secret')]) {
+                        sh """
+                            az login --service-principal -u \${AZURE_CLIENT_ID} -p \${AZURE_CLIENT_SECRET} --tenant \${AZURE_TENANT_ID}
+                            az webapp config container set --name \${webAppName} --resource-group \${resourceGroup} --docker-custom-image-name=${dockerHubRepo}:${env.BUILD_ID}
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh "docker rmi ${registryName}"
+                }
             }
         }
     }
-    
-}
-        
 }
