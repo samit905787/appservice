@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        registryName = "htmlimage"
+        registryName = "samit905787"
         registryCredential = 'ACR'
         dockerImage = 'testingimage'
         webAppResourceGroup = 'Rg-Amit'
