@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         registryName = "samit905787"
-        registryCredential = 'ACR'
+        registryCredential = 'Docker'
         dockerImage = 'testingimage'
         webAppResourceGroup = 'Rg-Amit'
         webAppName = 'dockerhtmlcontainer'   
