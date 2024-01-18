@@ -1,15 +1,15 @@
 pipeline {
      agent any
         environment {
-        registryName = "bhashini"
+        registryName = "htmlimage"
         registryCredential = 'ACR'
         dockerImage = 'vc'
-        registryUrl = 'bhashini.azurecr.io'
+        registryUrl = 'htmlimage.azurecr.io'
     }
     stages {
         stage ('checkout') {
             steps {
-            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/sonulodha/appservice']]])
+            checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/samit905787/appservice.git']]])
             }
             }
         stage ('build image') {
@@ -39,7 +39,7 @@ pipeline {
             ]) {
             sh """
                 /var/lib/jenkins/.local/bin/az login --service-principal -u ${username} -p ${password} --tenant ${tenant}
-                /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group app-service  --docker-custom-image-name=bhashini.azurecr.io/bhashini:${env.BUILD_ID}
+                /var/lib/jenkins/.local/bin/az  webapp config container set --name macbookapp --resource-group app-service  --docker-custom-image-name=htmlimage.azurecr.io/testingimage:${env.BUILD_ID}
                 """
             }
         }
