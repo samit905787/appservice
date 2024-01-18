@@ -2,36 +2,36 @@ pipeline {
     agent any
 
     environment {
-        registryName = "testingimage"
-        dockerHubRegistry = "docker.io"
-        dockerHubRepo = "samit905787/testingimage"
-        webAppName = "dockerhtmlcontainer"
-        resourceGroup = "Rg-Amit"
-        azureCredentials = 'Azure Service Principal'
+        registryName = "htmlimage"
+        registryCredential = 'ACR'
+        dockerImage = 'testingimage'
+        webAppResourceGroup = 'Rg-Amit'
+        webAppName = 'dockerhtmlcontainer'   
+        registryUrl = 'htmlimage.azurecr.io'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/samit905787/appservice.git']])
             }
         }
 
-        stage('Build Docker image') {
-            steps {
+        stage('Build image') {
+            steps {        
                 script {
-                    dockerImage = docker.build(registryName)
+                    // Build your Docker image
+                    dockerImage = docker.build("${registryName}:${env.BUILD_ID}")
                 }
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Push image to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'DOCKER_REGISTRY_CREDS', usernameVariable: 'dockerHubUser', passwordVariable: 'dockerHubPass')]) {
-                        docker.withRegistry("${dockerHubRegistry}", "${dockerHubRepo}", "${dockerHubUser}", "${dockerHubPass}") {
-                            dockerImage.push()
-                        }
+                    // Push the Docker image to Docker Hub
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerHubCredentials') {
+                        dockerImage.push()
                     }
                 }
             }
@@ -40,20 +40,17 @@ pipeline {
         stage('Deploy to Azure App Service') {
             steps {
                 script {
-                    withCredentials([azureServicePrincipal(credentialsId: "${azureCredentials}", tenantId: 'your-tenant-id', clientId: 'your-client-id', secret: 'your-client-secret')]) {
+                    // Deploy to Azure App Service
+                    withCredentials([
+                        string(credentialsId: 'app-id', variable: 'username'),
+                        string(credentialsId: 'tenant-id', variable: 'tenant'),
+                        string(credentialsId: 'app-id-pass', variable: 'password')
+                    ]) {
                         sh """
-                            az login --service-principal -u \${AZURE_CLIENT_ID} -p \${AZURE_CLIENT_SECRET} --tenant \${AZURE_TENANT_ID}
-                            az webapp config container set --name \${webAppName} --resource-group \${resourceGroup} --docker-custom-image-name=${dockerHubRepo}:${env.BUILD_ID}
+                            az login --service-principal -u ${username} -p ${password} --tenant ${tenant}
+                            az webapp config container set --name ${webAppName} --resource-group ${webAppResourceGroup} --docker-custom-image-name=${registryUrl}/${dockerImage}:${env.BUILD_ID}
                         """
                     }
-                }
-            }
-        }
-        
-        stage('Cleanup') {
-            steps {
-                script {
-                    sh "docker rmi ${registryName}"
                 }
             }
         }
